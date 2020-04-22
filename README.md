@@ -1,4 +1,4 @@
-# Elastic_Search_Best_Practice
+# Elastic_Search_Practice
 
 This repo is about making a Elastic Stack on a local machine. I will explain everything for MacOS. If you want to implement for different machine you can find alternative links on official website. 
 
