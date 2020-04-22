@@ -54,7 +54,7 @@ There should be a response like below.
 ```
 ## STEP 2 Install Kibana
 
-We will use kibana to run Elastic command, analysis and visualization.
+We will use Kibana to run Elastic command, analysis and visualization.
 
 **Download Link :** https://artifacts.elastic.co/downloads/kibana/kibana-7.6.2-darwin-x86_64.tar.gz
 
@@ -79,6 +79,97 @@ Write go to 127.0.0.1 address.
 
 If you a see Kibana home page Kibana is online.
 
+## STEP 3 Install Logstash
+
+We will use Logstash to upload and manipulate datas to Elastic search.
+
+**Download Link :** https://www.elastic.co/downloads/logstash
+
+After downloading Logstash, unzip it.
+
+![GitHub Logo](https://www.elastic.co/guide/en/logstash/7.6/static/images/basic_logstash_pipeline.png)
+
+Logstash is a bit different from other tools. It has an input and output. Also It has a filter part that you can do manipulations on data.
+
+To run Logstash properly we need to prepare conf file. In this conf file we need to define input port, how to filter the data and output port.
+
+We can use Logstash to directly read data, but for this pratice we will use Filebeat to read data. For now we jump to Filebeat part then we come back to Logstash and create a conf file.
+
+## STEP 4 Install FileBeat
+
+FileBeat is a tool to collect log datas like .csv files.
+
+**Download Link :** https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.2-darwin-x86_64.tar.gz
+
+After downloading FileBeat, unzip it.
+
+We need to manipulate filebeat.yml file on FileBeat folder.
+
+Open it with Sublime or vim.
+
+There is a input and output part on the file. In input part we need to define FileBeat where to find our data.
+
+In output part, we need to define FileBeat where to send data.
+
+In our example we read sample.csv data and send it to logstash.
+
+For this we crete the conf file below.
+
+```
+filebeat:
+  prospectors:
+    -
+      paths:
+        - /tmp/data/*.csv
+      exclude_files: ['sample.csv']
+      encoding: utf-8
+      input_type: log
+      document_type: myindex
+      tail_files: false
+  registry_file: /var/lib/filebeat/registry
+output:
+  logstash:
+    hosts: ["logstash:5044"]
+output.console:
+  pretty: true
+```
+Now go back to Logstash. We need to create a logstash.conf file to define where to listen as an input, how to filter data and where to send data.
+
+For this practice we put these codes to logstash.conf file.
+```
+
+input {
+  beats {
+    port => 5044
+    type => "mytype"
+  }
+}
+
+filter {
+  csv {
+    separator => ","
+    columns => ["Ref","ID","Case_Number","Date","Block","IUCR","Primary_Type","Description","Location_Description","Arrest","Domestic","Beat","District","Ward","Community_Area","FBI_Code","X_Coordinate","Y_Coordinate","Year","Updated_On","Latitude","Longitude","Location"]
+    remove_field => ["Location"]
+  }
+}
+
+output {
+  stdout
+  {
+
+  }
+  
+  elasticsearch
+  {
+    hosts => ["elasticsearch:9200"]
+    index => "myindex"
+    template_name => "myindex"
+    template => "/etc/logstash/conf.d/template.json"
+    template_overwrite => true
+    document_type => "mytype"
+    pipeline => "my_pipeline"
+  }
+}
 
 
-
+      tail_files: false
