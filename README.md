@@ -27,7 +27,7 @@ Run command below.
 ```
 ./bin/elasticsearch
 ```
-To check if ElasticSearch online, run the code below.
+To check if ElasticSearch is online, run the code below.
 
 ```
 curl -X GET "localhost:9200/?pretty"
@@ -61,5 +61,24 @@ We will use kibana to run Elastic command, analysis and visualization.
 (for alternative links : https://www.elastic.co/guide/en/kibana/7.6/targz.html#install-darwin64)
 
 **Important Note :** Alternatively, you can download Kibana and/or, which contains only features that are available under the Apache 2.0 license. You can run regular version ElasticSearch with oss version Kibana and visa versa. They both need to be same version.
+
+After downloading Kibana, unzip it.
+
+Open a new Terminal. Do not close ElasticSearch Terminal window.
+
+Go to Kibana folder with cd command on Terminal.
+
+Run command below.
+
+```
+./bin/kibana
+```
+To check if Kibana is online, opene browser.
+
+Write go to 127.0.0.1 address.
+
+If you a see Kibana home page Kibana is online.
+
+
 
 
