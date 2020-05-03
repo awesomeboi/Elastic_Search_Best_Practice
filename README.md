@@ -93,83 +93,35 @@ Logstash is a bit different from other tools. It has an input and output. Also I
 
 To run Logstash properly we need to prepare conf file. In this conf file we need to define input port, how to filter the data and output port.
 
-We can use Logstash to directly read data, but for this pratice we will use Filebeat to read data. For now we jump to Filebeat part then we come back to Logstash and create a conf file.
-
-## STEP 4 Install FileBeat
-
-FileBeat is a tool to collect log datas like .csv files.
-
-**Download Link :** https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.2-darwin-x86_64.tar.gz
-
-After downloading FileBeat, unzip it.
-
-We need to manipulate filebeat.yml file on FileBeat folder.
-
-Open it with Sublime or vim.
-
-There is a input and output part on the file. In input part we need to define FileBeat where to find our data.
-
-In output part, we need to define FileBeat where to send data.
-
-In our example we read sample.csv data and send it to logstash.
-
-For this we crete the conf file below.
-
+Conf file for out beuty dataset will be like below.
 ```
-filebeat:
-  prospectors:
-    -
-      paths:
-        - /tmp/data/*.csv
-      exclude_files: ['sample.csv']
-      encoding: utf-8
-      input_type: log
-      document_type: myindex
-      tail_files: false
-  registry_file: /var/lib/filebeat/registry
-output:
-  logstash:
-    hosts: ["logstash:5044"]
-output.console:
-  pretty: true
-```
-Now go back to Logstash. We need to create a logstash.conf file to define where to listen as an input, how to filter data and where to send data.
-
-For this practice we put these codes to logstash.conf file.
-```
+# Sample Logstash configuration for creating a simple
+# Logstash -> Elasticsearch pipeline.
 
 input {
-  beats {
-    port => 5044
-    type => "mytype"
+  file {
+    path => "/Users/volkansahin/Downloads/beautyBrandsDatabaselast.csv"
+    start_position => "beginning"
   }
 }
 
-filter {
-  csv {
-    separator => ","
-    columns => ["Ref","ID","Case_Number","Date","Block","IUCR","Primary_Type","Description","Location_Description","Arrest","Domestic","Beat","District","Ward","Community_Area","FBI_Code","X_Coordinate","Y_Coordinate","Year","Updated_On","Latitude","Longitude","Location"]
-    remove_field => ["Location"]
-  }
+filter{
+	csv {
+		separator => ","
+		columns =>["Brands","Website Link","Category","Skincare","Makeup","Hair","Country","Founded"]
+	}
 }
 
 output {
-  stdout
-  {
-
-  }
-  
-  elasticsearch
-  {
-    hosts => ["elasticsearch:9200"]
-    index => "myindex"
-    template_name => "myindex"
-    template => "/etc/logstash/conf.d/template.json"
-    template_overwrite => true
-    document_type => "mytype"
-    pipeline => "my_pipeline"
+  elasticsearch {
+    hosts => ["http://localhost:9200"]
+    index => "beautybrandsindex"
   }
 }
 
+```
+We use this conf file to run logstash with the command below.
+```
+./bin/logstash -f config/logstash-beauty.conf
+```
 
-      tail_files: false
